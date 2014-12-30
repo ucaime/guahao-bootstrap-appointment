@@ -1,0 +1,158 @@
+{// 加载头部公共文件 }
+<include file="Public:header" />
+<style>
+
+</style>
+<script>
+
+	$(document).ready(function() {
+		/*
+		$.ajax({
+			url:"{:U('home/room/json/',array('rid'=>$rid))}",type:"get",dataType:"json",cache:false
+		}).fail(function(){
+			
+		}).done(function(data){
+			$.each(data,function(i,item){
+				alert(item.title+","+item.start+","+item.end+","+item.backgroundColor);
+			});	
+		})*/
+		var date = new Date();
+		var d = date.getDate();
+		var m = date.getMonth();
+		var y = date.getFullYear();
+		$("body").on("click",".guahao",function(){
+			$(this).text("正在提交...").attr("disabled","disabled");
+			var $url="{:U('home/appoint/ajaxsave/')}";
+			var $uid=$(this).attr("data-uid");
+			var $rid=$(this).attr("data-rid");
+			var $did=$(this).attr("data-did");
+			var $day=$(this).attr("data-day");
+			var $noon=$(this).attr("data-noon");
+			var $roomname=$(this).attr("data-roomname");
+			var $name=$(this).attr("data-name");
+			/*
+			$.ajax({
+				url:$url,type:"post",dataType:"json",cache:false,data:{
+					uid:$uid,rid:$rid,did:$did,day:$day,noon:$noon,time:"09:00"
+				}
+			}).done(function(data){
+				alert(data.info);
+			})*/
+			var time="09:00";
+			if($noon=="下午"){
+				time="14:00";
+			}
+
+			location.href=$url+"&uid="+$uid+"&rid="+$rid+"&did="+$did+"&day="+$day+"&noon="+$noon+"&time="+time+"&name="+$name+"&roomname="+$roomname;
+		})
+		$("#close").click(function(){
+			$("#roomDialog").modal("hide");
+		})
+		if("{$vo.maxAppointTimes}"!="{$appoint}"){
+			$('#calendar').fullCalendar({
+				header: {
+					left: 'title',
+					center: '',
+					right: 'prev,next today'
+				},
+				titleFormat:{month:"yyyy年MMMM月",week:"yyyy年MMMM月d{'&#8212;'d日}",day:"yyyy年MMMM月d日 dddd"},
+				buttonText:{
+					prev:"上月",
+					next:"下月",
+					today:"今天",month:"月",week:"周",day:"日"
+				},
+				firstDay:1,monthNames:['01','02','03','04','05','06','07','08','09','10','11','12'],
+				monthNamesShort:['01','02','03','04','05','06','07','08','09','10','11','12'],
+				dayNames:['周日','周一','周二','周三','周四','周五','周六'],
+				dayNamesShort:['日','一','二','三','四','五','六'],
+				contentHeight:560,
+				events: "{:U('home/room/json/',array('rid'=>$rid))}",
+				dayClick: function(date, allDay, jsEvent, view) {
+					/*var selDate =$.fullCalendar.formatDate(date,"yyyy-MM-dd");
+					var dt = new Date(selDate);  
+					
+					if(dt.getDay()==2){
+					alert(dt.getDay());  //0代表周日
+					}*/
+				},
+				eventClick: function(calEvent, jsEvent, view) {
+					var selDate =$.fullCalendar.formatDate(calEvent.start,"yyyy-MM-dd");
+					if(calEvent.title=="已满"){
+						return false;
+					}
+					var tbody=$(".modal-body").find("tbody").empty();
+					$("#roomDialog").modal("show");
+					$.ajax({
+						url:"{:U('home/room/getappoint/',array('rid'=>$rid))}",type:"get",dataType:"json",cache:true,
+						data:{day:selDate,week:calEvent.id,rid:$("#rid").val()},
+						beforeSend:function(){
+							tbody.html("<td colspan='7'>数据正在加载...</td>"); 
+						}
+					}).done(function(data){
+						if(data!=null)tbody.empty();
+						$.each(data,function(i,item){
+							//alert(item.week);
+							var td_day=$("<td/>").html(selDate);
+							var td_week=$("<td/>").html(item.week+" "+item.noon);
+							var td_roomname=$("<td/>").html("{$name}");
+							var td_name=$("<td/>").html(item.name);
+							var td_limit=$("<td/>").html(item.limit);
+							var td_shengyu=$("<td/>").html(item.shengyu);
+							var a=$("<a class=\"btn btn-primary btn-xs guahao\"/>").attr("data-uid","{$uid}")
+									.attr("data-rid",item.rid)
+									.attr("data-did",item.did)
+									.attr("data-day",selDate)
+									.attr("data-roomname","{$name}")
+									.attr("data-name",item.name)
+									.attr("data-noon",item.noon).text("挂号");
+							if(item.shengyu=="0")a.removeClass("btn-primary").addClass("btn-danger").text("停挂").attr("disabled","disabled");
+							
+							var td_edit=$("<td/>").html(a);
+							tr=$("<tr/>");
+							tr.append(td_day).append(td_week).append(td_roomname)
+							.append(td_name).append(td_shengyu).append(td_edit);
+							tbody.append(tr);
+						})
+					});
+				}
+			});
+			$(".alert").hide();
+			$("body").find('.fc-day-content>div').each(function(i){
+				//alert($(this).html());	
+			})
+		}
+		else{
+			$(".alert").show();
+		}
+	});
+</script>
+<div class="container">
+	<div class="alert alert-danger">每日只能挂一次号，请明天挂号</div>
+	<input type="hidden" value="{$rid}" id="rid"/>
+	<div id="calendar"></div>
+</div> <!-- /container -->
+<!-- channelResDialog start -->
+<div id="roomDialog" class="modal" tabindex="-1">
+	<div class="modal-dialog" style="width: 650px;">
+		<div class="modal-content">
+			<div class="modal-body">
+				<table class="table table-bordered">
+					<thead>
+					<tr><th>日期</th><th>时段</th><th>科室</th><th>医生</th><th>剩余号</th><th>操作</th></tr>
+					</thead>
+					<tbody>
+					</tbody>
+				</table>
+			</div>
+			<div class="modal-footer">
+				<button class="btn btn-default" id="close">
+					取消
+				</button>
+			</div>
+		</div>
+	</div>
+</div>
+<!-- channelResDialog end -->
+<!-- 主页面结束 -->
+{// 加载尾部公共文件 }
+<include file="Public:footer" />

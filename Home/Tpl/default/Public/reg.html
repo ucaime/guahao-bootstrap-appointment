@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="">
+<meta name="author" content="">
+
+<title>{$vo.sitename}</title>
+<link rel="stylesheet" href="http://cdn.bootcss.com/twitter-bootstrap/3.0.2/css/bootstrap.min.css">
+<style>
+html,
+body {
+  height: 100%;
+  /* The html and body elements cannot have any padding or margin. */
+}
+
+/* Wrapper for page content to push down footer */
+#wrap {
+  min-height: 100%;
+  height: auto;
+  /* Negative indent footer by its height */
+  margin: 0 auto -60px;
+  /* Pad bottom by footer height */
+  padding: 0 0 60px;
+}
+.topbar a.brand {
+	font-family: verdana;
+	text-shadow: white 0 0 2px;
+}
+.dot {
+	color: #C43C35;
+}
+.postfix {
+	color: #46A546;
+}
+.signup .hero-unit {
+	background: #f5f5f5;
+}
+.container .text-muted {
+	text-align:center;
+	margin: 20px 0;
+}
+#footer > .container {
+  padding-left: 15px;
+  padding-right: 15px;
+}
+
+/* Set the fixed height of the footer here */
+#footer {
+  height: 60px;
+  background-color: #f5f5f5;
+}
+.container > footer p {
+	text-align:center;
+	text-shadow:white 1px 1px 0;
+	color:gray;
+}
+.hero-unit .alert-message p{
+	font-size: 13px;
+	line-height: 18px;
+}
+.signup .hero-unit {
+	margin-bottom: 0;
+	padding: 30px 60px;
+}
+</style>
+<!-- jQuery文件。务必在bootstrap.min.js 之前引入 -->
+<script src="http://cdn.bootcss.com/jquery/1.10.2/jquery.min.js"></script>
+<!-- 最新的 Bootstrap 核心 JavaScript 文件 -->
+<script src="http://cdn.bootcss.com/twitter-bootstrap/3.0.2/js/bootstrap.min.js"></script>
+<script>
+$(function(){
+	$("#loadimg").on("click",function(){
+		var img=$("#verifyImg");	
+		img.attr("src",img.attr("src")+"&rand="+Math.random());
+	})
+	$("input").on("blur",function(){		
+		$("input").parent().removeClass("has-error");
+	})
+	$("form").submit(function(){
+		$("[type='submit']").val("正在注册");
+		var self = $(this);
+		$.post(self.attr("action"), self.serialize(), success, "json");
+		return false;
+
+		function success(data){
+			if(data.status){
+				$(".bs-modal-sm").modal("show");
+				
+				window.setTimeout(function(){window.location.href = data.url;}, 2000);
+			} else {
+				//self.find(".check-tips").text(data.info);
+
+				var dom=data.info.split(":");
+				var obj=$("[name='"+dom[0]+"']");
+				obj.parent().addClass("has-error").popover({
+					placement : 'right',
+					content : dom[1],
+					trigger : 'manual',
+				}).popover('show');
+				//刷新验证码
+				$("#verifyImg").click();
+				$("[type='submit']").val("立即注册");
+				window.setTimeout(function(){$(".popover").slideUp();}, 3000);
+			}
+		}
+
+	})
+})
+</script>
+</head>
+<body>
+<div id="wrap">
+<div><img src="__PUBLIC__/images/bg.jpg"/></div>
+
+<div class="container">
+	<div class="panel panel-primary">
+		<div class="panel-heading"><strong>注册</strong></div>
+		<div class="panel-body">
+		<div class="row">
+		<div class="col-xs-9">
+		<form class="form-horizontal" method="post" action="{:U('home/public/save/')}">
+		  <div class="form-group row">
+			<label for="username" class="col-sm-2 control-label">用户名</label>
+			<div class="row">
+				<div class="col-xs-3">
+				<input type="text" name="username" id="username" class="form-control"
+				 placeholder="用户名" />
+				 </div>
+				 <div class="col-xs-4"><span class="help-block" id="username">中英文均可，2~16位</span>
+				 </div>
+			</div>
+		  </div>
+		  <div class="form-group">			
+			<label for="pwd" class="col-sm-2 control-label">密码</label>
+			<div class="row">
+				<div class="col-xs-3">
+				<input type="password" name="password" class="form-control"
+				 placeholder="密码" />
+				 </div>
+				 <div class="col-xs-4"><span class="help-block">6~16位字符，区分大小写</span>
+				 </div>
+			</div>
+		  </div>
+		  <div class="form-group">
+			<label for="pwd" class="col-sm-2 control-label">确认密码</label>
+			<div class="row">
+				<div class="col-xs-3">
+				<input type="password" name="repassword" class="form-control"
+				 placeholder="确认密码" />
+				 </div>
+				 <div class="col-xs-4"><span class="help-block">请再次填写密码</span>
+				 </div>
+			</div>
+		  </div>
+		  
+		  <div class="form-group">
+			<label for="pwd" class="col-sm-2 control-label">性别</label>
+			<div class="col-sm-4">
+				<label class="checkbox-inline">
+				  <input type="radio" id="type0" name="type" value="0" checked> 男
+				</label>
+				<label class="checkbox-inline">
+				  <input type="radio" id="type1" name="type" value="1"> 女
+				</label>
+			</div>
+		  </div>
+		  <div class="form-group">
+			<label for="truename" class="col-sm-2 control-label">真实姓名</label>
+			<div class="row">
+				<div class="col-xs-3">
+				<input type="text" name="truename" class="form-control"
+				 placeholder="真实姓名" />
+				 </div>
+				 <div class="col-xs-4"><span class="help-block">请填写真实姓名</span>
+				 </div>
+			</div>
+		  </div>
+		  <div class="form-group">
+			<label for="id" class="col-sm-2 control-label">身份证</label>
+			<div class="row">
+				<div class="col-xs-3">
+				<input type="text" name="id" class="form-control"
+				 placeholder="身份证" />
+				 </div>
+				 <div class="col-xs-4"><span class="help-block">请填写身份证</span>
+				 </div>
+			</div>
+		  </div>
+		  
+		  <div class="form-group">
+			<label for="cardid" class="col-sm-2 control-label">医保号</label>
+			<div class="row">
+				<div class="col-xs-3">
+				<input type="text" name="cardid" class="form-control"
+				 placeholder="医保号" />
+				 </div>
+				 <div class="col-xs-4"></div>
+			</div>
+		  </div>
+		  
+		  <div class="form-group">
+			<label for="mobile" class="col-sm-2 control-label">手机号</label>
+			<div class="row">
+				<div class="col-xs-3">
+				<input type="text" name="mobile" class="form-control"
+				 placeholder="手机号" />
+				 </div>
+				 <div class="col-xs-4"><span class="help-block">请填写手机号</span></div>
+			</div>
+		  </div>
+		  
+		  <div class="form-group">
+			<label for="address" class="col-sm-2 control-label">地址</label>
+			
+			<div class="row">
+				<div class="col-xs-6">
+				<textarea class="form-control" row="4" name="address"></textarea>
+				</div>
+			</div>
+		  </div>
+		  <div class="form-group">
+			<label for="verify" class="col-sm-2 control-label">验证码</label>
+			<div class="row">
+				<div class="col-xs-2">
+				<input type="text" name="verify" maxlength="4" class="form-control"
+				 placeholder="验证码" />
+				 </div>
+				 <div class="col-xs-3"><img class="code" id="verifyImg" style="height:32px;" src="{:U('home/public/verify/')}" onclick="this.src+='&rand='+Math.random();" alt="点击刷新验证码" /> <a href="#" id="loadimg">看不清?</a>
+				 </div>
+			</div>
+		  </div>
+		  <div class="form-group">
+			<div class="col-sm-offset-2 col-sm-10">
+			  <div class="row">			  
+				  <div class="col-xs-8">
+				  <input class="btn btn-primary" type="submit" value=" 立即注册 "/>
+				  </div>	
+
+				  <div class="col-xs-4">已经注册？<a href="{:U('home/public/login/')}" class="btn btn-danger btn-lg">登录</a></div>
+			  </div>
+			</div>
+		  </div>
+		</form>
+		</div>
+		<div class="col-xs-3" style="border-left:1px dashed #000;height:580px">
+			
+		</div>
+		</div>
+    </div>
+	</div>
+</div>
+<div class="modal fade bs-modal-sm" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-sm" style="width:175px;">
+    <div class="alert alert-success"><h4><span class="glyphicon glyphicon-ok">注册成功！</span></h4></div>
+  </div>
+</div>
+</div>
+<div id="footer">
+      <div class="container">
+        <p class="text-muted">&copy; 2013. Created by <a href="http://ichuan.net/">yc</a> | <a href="#" title="帮助">Help</a> | <a title="" href="#">Changelog</a></p>
+      </div>
+    </div>
+</body>
+</html>
