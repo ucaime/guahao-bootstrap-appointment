@@ -1,0 +1,70 @@
+{// 加载头部公共文件 }
+<include file="Public:header" />
+<script>
+$(function(){
+	$(".btn-xs").on("click",function(){		
+		$("[name='smstpl']").insert({text:$(this).attr("data-title")});
+	})	
+})
+</script>
+<div class="container">
+
+	<div class="panel panel-primary">
+		<div class="panel-heading"><strong>系统设置</strong></div>
+		<div class="panel-body">
+			<form name="form" class="form-horizontal" action="{:U('admin/setting/save/')}" method="post">
+				<div class="form-group">
+					<label class="col-xs-2 control-label">医院名称</label>
+					<div class="col-xs-10">
+						<input class="form-control" type="text" id="sitename" placeholder="医院名称" value="{$setting.sitename}" name="sitename">
+					</div>
+				</div>
+				<div class="form-group">
+					<label class="col-xs-2 control-label">联系电话</label>
+					<div class="col-xs-10">
+						<input class="form-control" type="text" value="{$setting.serviceTel}" id="serviceTel" placeholder="联系电话" name="serviceTel">
+					</div>
+				</div>
+				<div class="form-group">
+					<label class="col-xs-2 control-label">医院地址</label>
+					<div class="col-xs-10 input-group">
+						<textarea  class="form-control input-sm" row="3" placeholder="医院地址">{$setting.serviceAdd}</textarea>
+					</div>
+				</div>
+				<div class="form-group">
+					<label class="col-xs-2 control-label">挂号开放天数</label>
+					<div class="col-xs-10">
+						<input class="form-control" type="text" value="{$setting.appointDay}" placeholder="挂号开放天数" value="" name="appointDay" />
+					</div>
+				</div>
+				<div class="form-group">
+					<label class="col-xs-2 control-label">每日挂号次数</label>
+					<div class="col-xs-10">
+						<input class="form-control" type="text" value="{$setting.maxAppointTimes}" placeholder="每日挂号次数" value="" name="maxAppointTimes" />
+						<span class="help-block">每个用户每日限制的次数</span>
+					</div>
+				</div>				
+				<div class="form-group">
+					<label class="col-xs-2 control-label">注册成功发送短信模版</label>
+					<div class="col-xs-10 input-group">
+						<p><a href="#" class="btn btn-primary btn-xs" data-title="[%患者名字%]">患者名字</a>&nbsp; <a href="#" class="btn btn-primary btn-xs" data-title="[%科室%]">科室</a>&nbsp; <a href="#" class="btn btn-primary btn-xs" data-title="[%医生%]">医生</a>&nbsp; <a href="#" class="btn btn-primary btn-xs" data-title="[%就诊时间%]">就诊时间</a>&nbsp;  <a href="#" class="btn btn-primary btn-xs" data-title="[%医院%]">医院</a></p>
+						<textarea  class="form-control input-sm" row="4" name="smstpl">{$setting.smstpl}</textarea>
+						<p class="help-block">短信必须输入签名，签名格式：【医院名称】</p>
+					</div>
+				</div>
+				
+			   <div class="form-group">
+				<div class="col-sm-offset-2 col-sm-10">
+				  <button type="submit" class="btn btn-primary">保存</button>
+				</div>
+			  </div>
+
+			</form>
+		</div>
+	</div>
+
+</div> <!-- /container -->
+
+<!-- 主页面结束 -->
+{// 加载尾部公共文件 }
+<include file="Public:footer" />

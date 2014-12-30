@@ -1,0 +1,1 @@
+<?php	return array ( 0 => 'sid', 1 => 'rid', 2 => 'did', 3 => 'week', 4 => 'noon', 5 => 'limit', '_autoinc' => true, '_pk' => 'sid', '_type' => array ( 'sid' => 'int(11)', 'rid' => 'smallint(6)', 'did' => 'smallint(6)', 'week' => 'varchar(6)', 'noon' => 'varchar(6)', 'limit' => 'smallint(3)', ), );?>

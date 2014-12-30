@@ -1,0 +1,165 @@
+{// 加载头部公共文件 }
+<include file="Public:header" />
+<script>
+$(function(){
+	var appdialog=$("#appDialog");
+	$(".appedit").on("click",function(){
+		var $id=$(this).attr("id");
+		var $tel=$(this).attr("data-tel");
+		var $birthday=$(this).attr("data-birthday");
+		var $address=$(this).attr("data-address");
+		var $uid=$(this).attr("data-uid");
+		appdialog.modal("show").find("table td:even").css("background","#f9f9f9").css("boder-color","#ddd").css("color","#000");
+		$("#aid").val($id);
+		$("#name").html($("#name_"+$id).html());
+		$("#dname").html($("#dname_"+$id).html());
+		$("#tel").html($tel);
+		
+		$("#birthday").html($birthday);
+		$("#address").html($address);
+		$("#sex").html($("#sex_"+$id).html());
+		$("#truenameinfo").html($("#truename_"+$id).html());
+		$("#state").val($(this).attr("data-state"));
+		$("#dayinfo").html($("#day_"+$id).html());
+		$("#mobile").html($("#mobile_"+$id).html());
+		$("#uid").html($uid);
+
+	});	
+
+	$("#close").on("click",function(){
+		appdialog.modal("hide");	
+	})
+	$("#edit").on("click",function(){
+		$.ajax({
+			url:"{:U('admin/appoint/save/')}",type:"get",dataType:"json",cache:false,data:{
+				aid:$("#aid").val(),state:$("#state").val()
+			}
+		}).done(function(data){	
+			appdialog.modal("hide");
+			if(data.info=="success"){
+				location.reload();
+			}
+			showTip(data.info,"edit");
+		})	
+	})
+	$(".appointdelete").on("click",function(){
+		if(confirm("确定要删除选中项吗？")){
+			$.ajax({
+				url:$(this).attr("data-url"),type:"get",dataType:"json",cache:false
+			}).done(function(data){
+				if(data.status==1){
+					location.reload();
+				}else{
+					alert(data.info);
+					return false;
+				}
+			})
+		}
+	})
+
+	$("#search").on("click",function(){
+		var url="{:U('admin/appoint/index/')}";
+		var query  = $('#formuser').find('input').serialize();
+		
+		location.href=url+"&"+query;
+	})
+	function showTip(result, mode) {
+		if (result == "success") {
+			if (mode == "edit") {
+				$("#successAlert").html('编辑成功！');
+			}
+			$("#successAlert").slideDown();
+			window.setTimeout(function(){$("#successAlert").slideUp();}, 3000);
+		} else {
+			if (mode == "edit") {
+				$("#errorAlert").html('编辑失败！');
+			}
+			$("#errorAlert").slideDown();
+			window.setTimeout(function(){$("#errorAlert").slideUp();}, 3000);
+		}
+	}
+
+})
+</script>
+<div class="container">
+	<div id="successAlert" class="alert alert-success fade in"></div>
+	<div id="errorAlert" class="alert alert-danger fade in"></div>
+	<form class="form-inline" role="form" action="{:U('admin/appoint/index/')}" method="get" id="formuser">
+	  <div class="form-group">
+		<label class="sr-only" for="day">预约日期</label>
+		<input type="text" class="form-control" id="day" name="day" placeholder="预约日期" style="width:120px;">
+	  </div>
+	  <div class="form-group">
+		<label class="sr-only" for="id">身份证号</label>
+		<input type="text" class="form-control" id="id" name="id" placeholder="身份证号" style="width:120px;">
+	  </div>
+	  <div class="form-group">
+		<label class="sr-only" for="truename">真实姓名</label>
+		<input type="text" class="form-control" id="truename" name="truename" placeholder="真实姓名" style="width:120px;">
+	  </div>
+	  <button type="button" class="btn btn-primary" id="search">搜索</button>	&nbsp; 
+	</form><br>
+	<table class="table table-striped">
+		<tr>
+			<th>预约日期</th><th>发布时间</th><th>预约者</th><th>身份证</th><th>性别</th><th>预约科室</th><th>预约医生</th><th>预约状态</th><th>联系方式</th><th>操作</th>
+		</tr>
+		<volist name="list" id="vo">
+		<tr>
+			<td id="day_{$vo.aid}">{$vo.day}</td>
+			<td id="time_{$vo.aid}">{$vo['addtime']|toDate}</td>
+			<td id="truename_{$vo.aid}">{$vo.truename}</td>	
+			<td id="truename_{$vo.aid}">{$vo.id}</td>
+			<td id="sex_{$vo.aid}">{$vo['sex']|getSex}</td>	
+			<td id="name_{$vo.aid}">{$vo.name}</td>				
+			<td id="dname_{$vo.aid}">{$vo.dname}</td>	
+			<td id="state_{$vo.aid}">{$vo['state']|getState}</td>	
+			<td id="mobile_{$vo.aid}">{$vo.mobile}</td>	
+			<td><a href="#" id="{$vo.aid}" data-uid="{$vo.uid}" data-tel="{$vo.tel}" data-birthday="{$vo.birthday}" data-address="{$vo.address}" data-state="{$vo.state}" class="btn btn-primary btn-xs appedit">编辑</a>
+				<a href="#" data-url="{:U('admin/appoint/delete/',array('aid'=>$vo['aid']))}" id="{$vo.aid}" class="btn btn-primary btn-xs appointdelete">删除</a></td>
+		</tr>
+		</volist>
+	</table>
+	
+	<ul class="pagination">{$page}</ul>
+</div> <!-- /container -->
+<!-- channelResDialog start -->
+<div id="appDialog" class="modal" tabindex="-1">
+	<div class="modal-dialog" style="width: 550px;">
+		<div class="modal-content">
+			<div class="modal-header">
+				<h4>编辑预约记录</h4>
+			</div>
+			<div class="modal-body">
+				<input type="hidden" value="" id="aid"/>
+				<table class="table table-hover">
+					<tr><td style="width:90px">预约科室：</td><td id="name"></td><td style="width:90px">预约医生：</td><td id="dname"></td></tr>
+					<tr>
+						<td>预约日期：</td><td id="dayinfo"></td>
+						<td>预约状态：</td><td><select id="state">
+						<option value="1">已挂号</option>
+						<option value="2">已就诊</option>
+						<option value="3">已取消</option>
+						<option value="4">失约</option>
+						</select></td>
+					</tr>
+					<tr><td>预约者：</td><td id="truenameinfo"></td><td>卡号：</td><td id="uid"></td></tr>
+					<tr><td>性别：</td><td id="sex"></td><td>出生年月：</td><td id="birthday"></td></tr>
+					<tr><td>联系手机：</td><td id="mobile"></td><td>联系电话：</td><td id="tel"></td></tr>
+					<tr><td>联系地址：</td><td id="address" colspan="3"></td></tr>
+				</table>
+			</div>
+			<div class="modal-footer">
+				<button class="btn btn-default" id="close">
+					取消
+				</button>
+				<button class="btn btn-primary" id="edit">
+					确认
+				</button>
+			</div>
+		</div>
+	</div>
+</div>
+
+<!-- 主页面结束 -->
+{// 加载尾部公共文件 }
+<include file="Public:footer" />

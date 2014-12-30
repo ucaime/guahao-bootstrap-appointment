@@ -1,0 +1,195 @@
+{// 加载头部公共文件 }
+<include file="Public:header" />
+<script>
+function DoctorAction(mod){
+	var dialog=$("#doctorDialog");
+	if(mod=="add"){
+		var $limit="";
+		$(".limit").each(function(){
+			var $num=$(this).val();
+			if($num=="")$num=0;
+			if (/\D/.test($num)) {
+				alert("放号量请输入数字");
+				$(this).focus();
+                return false;
+            } 
+		})
+		alert($("form").serialize());
+		$.ajax({
+			url:"{:U('admin/doctor/save/')}",type:"post",dataType:"json",cache:false,data:$("form").serialize()
+		}).done(function(data){	
+			alert(data.info);
+			return false;
+			location.reload();
+		})
+	}
+	else if(mod=="edit"){
+
+	}
+
+	else{	
+		;	
+	}
+}
+$(function(){
+	var dialog=$("#doctorDialog");
+	dialog.find("table td:even").css("background","#f9f9f9").css("boder-color","#ddd").css("color","#000");
+	$("#add").on("click",function(){
+		dialog.modal("show");	
+	})
+	$("#close").on("click",function(){
+		$("[type='text'],[type='hidden'],textarea").val("");
+		dialog.modal("hide");	
+	})
+	$(".doctordelete").on("click",function(){
+		if(confirm("确定要删除这个医生吗？预约记录将被一并删除！")){
+			$.ajax({
+				url:$(this).attr("data-url"),type:"get",dataType:"json",cache:false
+			}).done(function(data){
+				if(data.status==1){
+					location.reload();
+				}else{
+					alert(data.info);
+					return false;
+				}
+			})
+		}
+	})	
+	$(".doctoredit").on("click",function(){
+		$("[name='name']").val($(this).attr("data-name"));
+		$("[name='intro']").val($(this).attr("data-intro"));
+		$("[name='rid']").val($(this).attr("data-rid"));
+		$("[name='type']").val($(this).attr("data-type"));
+		$("[name='did']").val($(this).attr("data-did"));
+		//alert($(this).attr("data-url"));
+		$.ajax({
+			url:$(this).attr("data-url"),type:"get",dataType:"json",cache:false
+		}).fail(function(){
+			
+		}).done(function(data){
+			if(data.data!=null){
+				$.each(data.data, function (i, item) {
+					var dom=item.week+"_"+item.noon;
+					$("[name='s["+dom+"]']").val(item.limit);
+				});
+			}
+		});	
+		dialog.modal("show");
+	})
+})
+</script>
+<div class="container">
+	
+	<button type="button" class="btn btn-primary navbar-btn" id="add">新增</button>
+	<table class="table table-striped">
+		<tr>
+			<th>编号</th><th>医生姓名</th><th>所属科室</th><th>操作</th>
+		</tr>
+		<volist name="list" id="vo">
+		<tr>
+			<td id="did_{$vo.did}">{$vo.did}</td>
+			<td id="name_{$vo.did}">{$vo.name}</td>
+			<td id="rname_{$vo.did}">{$vo.rname}</td>		
+			<td><a href="{:U('admin/appoint/index/',array('did'=>$vo['did']))}" class="btn btn-primary btn-xs">挂号记录</a>&nbsp; <a href="#" id="{$vo.did}" data-did="{$vo.did}" data-rid="{$vo.rid}" data-name="{$vo.name}" data-type="{$vo.type}" data-intro="{$vo.intro}" data-url="{:U('admin/doctor/edit/',array('did'=>$vo['did']))}" class="btn btn-primary btn-xs doctoredit">编辑</a> &nbsp;
+			<a href="#" class="btn btn-danger btn-xs doctordelete" data-url="{:U('admin/doctor/delete/',array('did'=>$vo['did']))}">删除</a></td>
+		</tr>
+		</volist>
+	</table>
+	
+	<ul class="pagination">{$page}</ul>
+</div> <!-- /container -->
+<!-- channelResDialog start -->
+<div id="doctorDialog" class="modal" tabindex="-1">
+
+	<div class="modal-dialog" style="width: 600px;">
+		<div class="modal-content">
+			<div class="modal-header">
+				<h4>添加医生</h4>
+			</div>
+			<form class="form-horizontal" action="{:U('admin/doctor/save/')}" method="post">
+			<div class="modal-body">
+			<input type="hidden" value="0" name="did" id="did"/>
+			<div class="form-group">
+				<label  class="col-sm-3 control-label" for="name">医生名称</label>
+				<div class="col-sm-9">
+				<input type="text" class="form-control input-sm" id="name" name="name" placeholder="医生名称">
+				</div>
+			  </div>
+			  <div class="form-group">
+				<label  class="col-sm-3 control-label" for="rid">所属科室</label>
+				<div class="col-sm-9">
+				<select class="form-control input-sm" id="rid" name="rid">
+					<volist name="room" id="vo">
+					<option value="{$vo.rid}">{$vo.name}</option>
+					</volist>
+				</select>
+				</div>
+			  </div>
+			  <div class="form-group">
+				<label  class="col-sm-3 control-label" for="type">级别</label>
+				<div class="col-sm-9">
+				<select class="form-control input-sm" id="type" name="type">
+					<volist name="doctortype" id="vo">
+					<option value="{$i}">{$vo}</option>
+					</volist>
+				</select>
+				</div>
+			  </div>
+			  <div class="form-group">
+				<label  class="col-sm-3 control-label" for="intro">擅长治疗</label>
+				<div class="col-sm-9">
+				<textarea class="form-control input-sm" rows="2" id="intro" name="intro"></textarea>
+				</div>
+			  </div>
+			  <div class="form-group">
+				<label  class="col-sm-3 control-label" for="exampleInputFile">房号量</label>
+				<div class="col-sm-9">
+				<div class="row">
+				  <table class="table table-condensed">
+					<tr>
+						<td style="width:80px;">周日上午</td><td><input type="text" class="form-control input-sm limit" data-week="周日" data-noon="上午" id="sun_a" name="s[周日_上午]" placeholder="0"></td>
+						<td style="width:80px;">周日下午</td><td><input type="text" class="form-control input-sm limit" data-week="周日" data-noon="下午" id="sun_p" name="s[周日_下午]" placeholder="0"></td>
+					</tr>					
+					<tr>
+						<td style="width:80px;">周一上午</td><td><input type="text" class="form-control input-sm limit" data-week="周一" data-noon="上午"  id="mon_a" name="s[周一_上午]" placeholder="0"></td>
+						<td style="width:80px;">周一下午</td><td><input type="text" class="form-control input-sm limit" data-week="周一" data-noon="下午"  id="mon_p" name="s[周一_下午]" placeholder="0"></td>
+					</tr>					
+					<tr>
+						<td style="width:80px;">周二上午</td><td><input type="text" class="form-control input-sm limit" data-week="周二" data-noon="上午"  id="tue_a" name="s[周二_上午]" placeholder="0"></td>
+						<td style="width:80px;">周二下午</td><td><input type="text" class="form-control input-sm limit" data-week="周二" data-noon="下午"  id="tue_p" name="s[周二_下午]" placeholder="0"></td>
+					</tr>
+					<tr>
+						<td style="width:80px;">周三上午</td><td><input type="text" class="form-control input-sm limit" data-week="周三" data-noon="上午"  id="wed_a" name="s[周三_上午]" placeholder="0"></td>
+						<td style="width:80px;">周三下午</td><td><input type="text" class="form-control input-sm limit" data-week="周三" data-noon="下午"  id="wed_p" name="s[周三_下午]" placeholder="0"></td>
+					</tr>
+					<tr>
+						<td style="width:80px;">周四上午</td><td><input type="text" class="form-control input-sm limit" data-week="周四" data-noon="上午"  id="thu_a" name="s[周四_上午]" placeholder="0"></td>
+						<td style="width:80px;">周四下午</td><td><input type="text" class="form-control input-sm limit" data-week="周四" data-noon="下午"  id="thu_p" name="s[周四_下午]" placeholder="0"></td>
+					</tr>
+					<tr>
+						<td style="width:80px;">周五上午</td><td><input type="text" class="form-control input-sm limit" data-week="周五" data-noon="上午"  id="fri_a" name="s[周五_上午]" placeholder="0"></td>
+						<td style="width:80px;">周五下午</td><td><input type="text" class="form-control input-sm limit" data-week="周六" data-noon="下午"  id="fri_p" name="s[周五_下午]" placeholder="0"></td>
+					</tr>
+					<tr>
+						<td style="width:80px;">周六上午</td><td><input type="text" class="form-control input-sm limit" data-week="" data-noon=""  id="sat_a" name="s[周六_上午]" placeholder="0"></td>
+						<td style="width:80px;">周六下午</td><td><input type="text" class="form-control input-sm limit" data-week="周六" data-noon="下午"  id="sat_p" name="s[周六_下午]" placeholder="0"></td>
+					</tr>
+				  </table>
+				</div>
+				</div>
+			  </div>
+			</div>
+			<div class="modal-footer">
+				<input class="btn btn-default" value="取消" id="close" type="button">
+				<input class="btn btn-primary" type="submit" value="确认">
+			</div>
+			</form>	
+			
+		</div>
+	</div>
+	
+</div>
+
+<!-- 主页面结束 -->
+{// 加载尾部公共文件 }
+<include file="Public:footer" />

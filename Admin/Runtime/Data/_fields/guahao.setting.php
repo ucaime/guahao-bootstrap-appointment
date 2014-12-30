@@ -1,0 +1,1 @@
+<?php	return array ( 0 => 'skey', 1 => 'svalue', '_autoinc' => false, '_type' => array ( 'skey' => 'varchar(30)', 'svalue' => 'varchar(255)', ), );?>

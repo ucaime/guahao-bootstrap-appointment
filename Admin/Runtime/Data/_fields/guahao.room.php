@@ -1,0 +1,1 @@
+<?php	return array ( 0 => 'rid', 1 => 'name', 2 => 'img', 3 => 'state', 4 => 'delayed', 5 => 'intro', '_autoinc' => true, '_pk' => 'rid', '_type' => array ( 'rid' => 'smallint(6)', 'name' => 'varchar(50)', 'img' => 'varchar(50)', 'state' => 'int(11)', 'delayed' => 'int(11)', 'intro' => 'text', ), );?>
